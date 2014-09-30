@@ -1,9 +1,9 @@
-# RestClientTemplate
+# Twitter Client with Fragments
 
-Project 2 - Grid Image Search
+Project 4 - Twitter Client with Fragments
 
-This week I only had time to complete the basic required user stories, sorry -- I've been a slacker :(.
+This week I only had time to complete the basic required user stories
 
 Here is .gif of project in action:
 
-![Twitter Client Walkthrough Gif](TwitterWalkthrough.gif)
+![Twitter Client Walkthrough Gif](NewTwitterWalkthrough.gif)
