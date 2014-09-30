@@ -6,22 +6,28 @@ import java.util.List;
 import java.util.Locale;
 
 import android.content.Context;
+import android.content.Intent;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.codepath.apps.basictwitter.models.Tweet;
+import com.codepath.apps.basictwitter.models.User;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 public class TweetArrayAdapter extends ArrayAdapter<Tweet> {
 
+	Context context;
 	public TweetArrayAdapter(Context context, List<Tweet> tweets) {
+		
 		super(context, 0, tweets);
-		// TODO Auto-generated constructor stub
+		this.context = context;
 	}
 
 	@Override
@@ -47,6 +53,21 @@ public class TweetArrayAdapter extends ArrayAdapter<Tweet> {
 		//Clear out image from last time if it's a recycled image view
 		ivProfileImage.setImageResource(android.R.color.transparent);
 		
+		ivProfileImage.setTag(tweet.getUser().getUid());
+		
+		//Set Click Handler
+		ivProfileImage.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				Intent i = new Intent(context, ProfileActivity.class);
+				i.putExtra("user_id", (Long)v.getTag());
+				context.startActivity(i);
+				
+			}
+		});
+		
 		ImageLoader imageLoader = ImageLoader.getInstance();
 		
 		//populate views with tweet data
@@ -57,6 +78,15 @@ public class TweetArrayAdapter extends ArrayAdapter<Tweet> {
 		tvBody.setText(tweet.getBody());
 		
 		return v;
+	}
+	
+	public User getUserByViewId(int id)
+	{
+		for (int i = 0; i < this.getCount(); i++)
+		{
+			
+		}
+		return null;
 	}
 	
 	public String getRelativeTimeAgo(String rawJsonDate) {

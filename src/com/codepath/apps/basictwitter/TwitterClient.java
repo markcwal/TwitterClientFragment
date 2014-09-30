@@ -31,10 +31,58 @@ public class TwitterClient extends OAuthBaseClient {
 	public TwitterClient(Context context) {
 		super(context, REST_API_CLASS, REST_URL, REST_CONSUMER_KEY, REST_CONSUMER_SECRET, REST_CALLBACK_URL);
 	}
+	
+	public void getMyInfo(AsyncHttpResponseHandler handler)
+	{
+		String apiUrl = getApiUrl("account/verify_credentials.json");
+		client.get(apiUrl, null, handler);
+	}
+	
+	public void getUserInfo(AsyncHttpResponseHandler handler, Long uid)
+	{
+		if (uid == 0)
+		{
+			getMyInfo(handler);
+			return;
+		}
+		
+		String apiUrl = getApiUrl("users/show.json");
+		RequestParams params = new RequestParams();
+		params.put("user_id", uid.toString());
+		client.get(apiUrl, params, handler);	
+	}
+	
+	public void getUserTimeline(AsyncHttpResponseHandler handler, Long uid, Long max_id)
+	{
+		String apiUrl = getApiUrl("statuses/user_timeline.json");
+		RequestParams params = new RequestParams();
+		params.put("user_id", uid.toString());
+		if (max_id != Long.MAX_VALUE)
+		{
+			params.put("max_id", max_id.toString());
+		}
+		client.get(apiUrl, params, handler);
+	}
 
 	public void getHomeTimeline(AsyncHttpResponseHandler handler, Long max_id)
 	{
 		String apiUrl = getApiUrl("statuses/home_timeline.json");
+		//construct parameters that we want
+		
+		RequestParams params = null; 
+		if (max_id != Long.MAX_VALUE)
+		{	
+			params = new RequestParams();
+			params.put("max_id", max_id.toString());
+		}
+		//client.get or client.post or client.delete
+		//params.put("max_id", arg1)		//pass null if you don't have any paramters
+		client.get(apiUrl, params, handler);
+	}
+	
+	public void getMentionsTimeline(AsyncHttpResponseHandler handler, Long max_id)
+	{
+		String apiUrl = getApiUrl("statuses/mentions_timeline.json");
 		//construct parameters that we want
 		
 		RequestParams params = null; 

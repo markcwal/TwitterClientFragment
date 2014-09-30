@@ -1,54 +1,66 @@
 package com.codepath.apps.basictwitter;
 
-import java.util.ArrayList;
-
-import org.json.JSONArray;
-
-import android.app.Activity;
+import android.app.ActionBar;
+import android.app.ActionBar.Tab;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
+import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.Toast;
 
-import com.codepath.apps.basictwitter.models.EndlessScrollListener;
-import com.codepath.apps.basictwitter.models.Tweet;
-import com.loopj.android.http.JsonHttpResponseHandler;
+import com.codepath.apps.basictwitter.fragments.HomeTimelineFragment;
+import com.codepath.apps.basictwitter.fragments.MentionsTimelineFragment;
+import com.codepath.apps.basictwitter.fragments.TweetsListFragment;
+import com.codepath.apps.basictwitter.listeners.FragmentTabListener;
 
-public class TimelineActivity extends Activity {
+public class TimelineActivity extends FragmentActivity {
 
-	private TwitterClient client;
-	private ArrayList<Tweet> tweets;
-	private ArrayAdapter<Tweet> aTweet;
-	private ListView lvTweets;
-	private long max_id = 0;
+	
+	
+	private TweetsListFragment fragmentTweetsList;
+	private HomeTimelineFragment htf;
+	private MentionsTimelineFragment mtf;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_timeline);
+		setupTabs();
 		
-		
-		client = TwitterApplication.getRestClient();
-		
-		populateTimeline();
-		
-		lvTweets = (ListView) findViewById(R.id.lvTweets);
-		tweets = new ArrayList<Tweet>();
-		aTweet = new TweetArrayAdapter(this, tweets);
-		lvTweets.setAdapter(aTweet);
-		
-		lvTweets.setOnScrollListener(new EndlessScrollListener() {
-		    @Override
-		    public void onLoadMore(int page, int totalItemsCount) {
-	                // Triggered only when new data needs to be appended to the list
-	                // Add whatever code is needed to append new items to your AdapterView
-		        customLoadMoreDataFromApi(totalItemsCount); 
-	                // or customLoadMoreDataFromApi(totalItemsCount); 
-		    }
-	        });
+		htf = (HomeTimelineFragment) getSupportFragmentManager().findFragmentByTag("HomeTimelineFragment");
+		mtf = (MentionsTimelineFragment) getSupportFragmentManager().findFragmentByTag("MentionsTimelineFragment");
+	}
+	
+	private void setupTabs() {
+		ActionBar actionBar = getActionBar();
+		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+		actionBar.setDisplayShowTitleEnabled(true);
+
+		Tab tab1 = actionBar
+			.newTab()
+			.setText("Home")
+			.setIcon(R.drawable.ic_home)
+			.setTag("HomeTimelineFragment")
+			.setTabListener(
+				new FragmentTabListener<HomeTimelineFragment>(R.id.flContainer, this, "home",
+								HomeTimelineFragment.class));
+
+		actionBar.addTab(tab1);
+		actionBar.selectTab(tab1);
+
+		Tab tab2 = actionBar
+			.newTab()
+			.setText("Mentions")
+			.setIcon(R.drawable.ic_mentions)
+			.setTag("MentionsTimelineFragment")
+			.setTabListener(
+			    new FragmentTabListener<MentionsTimelineFragment>(R.id.flContainer, this, "mentions",
+								MentionsTimelineFragment.class));
+
+		actionBar.addTab(tab2);
 	}
 	
 	@Override
@@ -58,50 +70,18 @@ public class TimelineActivity extends Activity {
         return true;
     }
 	
-	// Append more data into the adapter
-    public void customLoadMoreDataFromApi(int totalItemsCount) {
-      // This method probably sends out a network request and appends new data items to your adapter. 
-      // Use the offset value and add it as a parameter to your API request to retrieve paginated data.
-      // Deserialize API response and then construct new objects to append to the adapter
-    	
-    	if (totalItemsCount > 0)
-    		max_id = aTweet.getItem(totalItemsCount - 1).getUid() - 1;
-    	
-      client.getHomeTimeline(new JsonHttpResponseHandler() {
-			
-			@Override
-			public void onSuccess(JSONArray json) {
-				//Tweet.fromJSONArray(json);
-				aTweet.addAll(Tweet.fromJSONArray(json));
-			}
-			
-			@Override
-			public void onFailure(Throwable e, String s) {
-				Log.d("debug", e.toString());
-				Log.d("debug", s.toString());
-			}
-		}, max_id);
-    }
-	
-	public void populateTimeline()
+	public void onProfileView(MenuItem mi)
 	{
-		Log.d("debug", "TESTING TESTING");
-		client.getHomeTimeline(new JsonHttpResponseHandler() {
-			
-			@Override
-			public void onSuccess(JSONArray json) {
-				//Tweet.fromJSONArray(json);
-				aTweet.clear();
-				aTweet.addAll(Tweet.fromJSONArray(json));
-			}
-			
-			@Override
-			public void onFailure(Throwable e, String s) {
-				Log.d("debug", e.toString());
-				Log.d("debug", s.toString());
-			}
-		}, Long.MAX_VALUE);
+		Intent i = new Intent(this, ProfileActivity.class);
+		i.putExtra("user_id", 0L);
+		startActivity(i);
 	}
+	
+	public void onProfileImageClick(View v)
+	{
+		
+	}
+	
 	
 	public void onComposeClick(MenuItem mi)
 	{
@@ -127,7 +107,8 @@ public class TimelineActivity extends Activity {
 					e.printStackTrace();
 				}
 				//Not sure we have to do anything here
-				populateTimeline();
+				htf.populateTimeline();
+				getActionBar().setSelectedNavigationItem(0);
 				//String value = data.getStringExtra("value");
 				//Settings mySettings = (Settings) data.getSerializableExtra("settings");
 				//this.settings = mySettings;

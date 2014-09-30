@@ -12,5 +12,6 @@
     <string name="name_label">Mark</string>
     <string name="ts_label">15m</string>
     <string name="title_activity_compose">Compose a Tweet</string>
+    <string name="title_activity_profile">ProfileActivity</string>
 
 </resources>
